@@ -1,6 +1,35 @@
 # measure.py - YouTube Premium (Using saved session)
 from playwright.sync_api import sync_playwright
 import time
+import subprocess
+
+def phase_start(name):
+    """Signal à GMT que la phase commence"""
+    subprocess.run(["echo", f"[PHASE: {name}]"])
+
+def phase_end(name):
+    """Signal à GMT que la phase se termine"""
+    subprocess.run(["echo", f"[PHASE-END: {name}]"])
+
+def watch_video(page, url, duration, phase_name):
+    page.goto(url, timeout=60000, wait_until="domcontentloaded")
+    
+    # Accepter les cookies si nécessaire (hors phase mesurée)
+    for text in ['Accept all', 'Aceptar todo', 'Tout accepter']:
+        try:
+            page.click(f"button:has-text('{text}')", timeout=3000)
+            break
+        except:
+            pass
+    
+    # Attendre que la vidéo démarre vraiment
+    time.sleep(3)
+    
+    # ---- DÉBUT DE LA PHASE MESURÉE ----
+    phase_start(phase_name)
+    time.sleep(duration)
+    phase_end(phase_name)
+    # ---- FIN DE LA PHASE MESURÉE ----
 
 def run():
     with sync_playwright() as p:
@@ -11,22 +40,17 @@ def run():
         context = browser.new_context(storage_state="/app/premium_state.json")
         page = context.new_page()
 
-        # --- VIDEO 1 ---
-        page.goto("https://youtu.be/8YxQLBRBpJI?si=WqOA2tSgWDM5BMKB", timeout=60000, wait_until="domcontentloaded")
-
-        # We no longer need to look for the cookies button because,
-        # since we are logged in, they are already accepted
-
-        time.sleep(161)
-
-        # --- VIDEO 2 ---
-        page.goto("https://youtu.be/cX24KlL8klY?si=havUAEjKDooz68T_", timeout=60000, wait_until="domcontentloaded")
-        time.sleep(186)
-
-        # --- VIDEO 3 ---
-        page.goto("https://youtu.be/Y4J_NYAQQEQ?si=BLcMRRYQMqy0-23l", timeout=60000, wait_until="domcontentloaded")
-        time.sleep(181)
-
+        watch_video(page, 
+                    "https://youtu.be/8YxQLBRBpJI?si=WqOA2tSgWDM5BMKB", 
+                    161, "video1")
+        
+        watch_video(page, 
+                    "https://youtu.be/cX24KlL8klY?si=havUAEjKDooz68T_", 
+                    186, "video2")
+        
+        watch_video(page, 
+                    "https://youtu.be/Y4J_NYAQQEQ?si=BLcMRRYQMqy0-23l", 
+                    181, "video3")
         context.close()
         browser.close()
 
