@@ -1,17 +1,16 @@
 # measure.py - YouTube Premium (Using saved session)
 from playwright.sync_api import sync_playwright
 import time
-import subprocess
 
-def phase_start(name):
-    """Signal à GMT que la phase commence"""
-    subprocess.run(["echo", f"[PHASE: {name}]"])
+def timestamp_us():
+    """Retourne le timestamp actuel en microsecondes"""
+    return int(time.time() * 1_000_000)
 
-def phase_end(name):
-    """Signal à GMT que la phase se termine"""
-    subprocess.run(["echo", f"[PHASE-END: {name}]"])
+def note(msg):
+    """Print dans le format attendu par GMT"""
+    print(f"{timestamp_us()} {msg}", flush=True)
 
-def watch_video(page, url, duration, phase_name):
+def watch_video(page, url, duration, label):
     page.goto(url, timeout=60000, wait_until="domcontentloaded")
     
     # Accepter les cookies si nécessaire (hors phase mesurée)
@@ -25,11 +24,9 @@ def watch_video(page, url, duration, phase_name):
     # Attendre que la vidéo démarre vraiment
     time.sleep(3)
     
-    # ---- DÉBUT DE LA PHASE MESURÉE ----
-    phase_start(phase_name)
+    note(f"START {label}")   # ← GMT enregistre ce timestamp
     time.sleep(duration)
-    phase_end(phase_name)
-    # ---- FIN DE LA PHASE MESURÉE ----
+    note(f"END {label}")     # ← GMT enregistre ce timestamp
 
 def run():
     with sync_playwright() as p:

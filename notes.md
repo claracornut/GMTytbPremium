@@ -80,7 +80,7 @@ ytb-AdBlockPlus-v2
 ytb-noAddBlock-v2
 ytb-premium-v2
 
-#avec un flow PlayVideo qui mesure uniquement pendant que les vidéos jouent
+# avec un flow PlayVideo qui mesure uniquement pendant que les vidéos jouent
 ytb-Ublock-v3
 ytb-AdGuard-v3
 ytb-AdBlockPlus-v3
