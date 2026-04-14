@@ -50,6 +50,7 @@ def run():
                     181, "video3")
         context.close()
         browser.close()
+        time.sleep(5)  # let powermetrics finish properly
 
 if __name__ == "__main__":
     run()
